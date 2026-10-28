@@ -30,7 +30,7 @@ async function deliver($: EngineInterface, l: L, text: string): Promise<void> {
   $.ui.log(line)
 }
 
-/** `sent = decisions`, mode building; the message is composed from the plan as it goes out. Returns undefined when the mode did not allow it. */
+/** `sent = decisions`, mode building; the message is composed from the plan as it goes out. No-op when the mode did not allow it. */
 async function send($: EngineInterface, from: PaneState['mode'], compose: (p: Plan) => string): Promise<void> {
   const found: { plan?: Plan } = {}
   const written = await update($, PANE, s => {

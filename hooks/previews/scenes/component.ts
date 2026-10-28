@@ -3,20 +3,10 @@
 import type { Canvas, Keyframe, Rect, Scene } from '../canvas'
 import { blend8, C, inSlots, KEYCAP_H, keycapWidth, PHASES, stage, VIEW_H, VIEW_W } from '../canvas'
 import { textWidth } from '../font5x7'
+import { atRest, CLICK_SLOT, FIRST_EXIT, LABEL_SCALE, POINTER_ON_BUTTON, TEXT_BAR_H, TITLE_SCALE } from './shared'
 
-/** Labels at 2 units per dot stay legible once the frame is downsampled into a card. */
-const LABEL_SCALE = 2
-/** Free-standing page titles; labels inside components stay at LABEL_SCALE so they fit their boxes. */
-const TITLE_SCALE = 3
-/** The second trigger slot shows the click rings. */
-const CLICK_SLOT = PHASES.trigger[0] + 1
-const FIRST_EXIT = PHASES.exit[0]
 const HOLD_LEN = PHASES.hold[1] - PHASES.hold[0]
-/** Pointer tip relative to the bar button it presses. */
-const POINTER_ON_BUTTON = { dx: 12, dy: 5 }
-const TEXT_BAR_H = 4
 
-const isStill = (k: Keyframe): boolean => k.phase === 'idle' || k.phase === 'rest'
 /** Pointer, touch and keycap may appear only in these slots; enter and exit frames stay actor-free so they dedupe. */
 const showsActor = (k: Keyframe): boolean => k.phase === 'hold' || k.slot === FIRST_EXIT
 /** 0..1 across the hold, for hold-only motion (progress lines, shimmer); hold frames never dedupe anyway. */
@@ -83,7 +73,7 @@ function drawerPanel(c: Canvas, k: Keyframe, hover: boolean): number {
 
 const drawer: Scene = (c, k) => {
   const { button: b } = stage.desktop(c, { button: 'Menu', hover: k.phase === 'trigger' })
-  if (isStill(k)) {
+  if (atRest(k)) {
     c.pointer(DRAWER_REST.x, DRAWER_REST.y)
     return
   }
@@ -136,7 +126,7 @@ const tabs: Scene = (c, k) => {
   TAB_PANEL_SIDE.widths.forEach((w, i) =>
     clipRect(c, TAB_PANEL, x2 + TAB_PANEL_SIDE.dx, TAB_PANEL.y + TAB_PANEL_SIDE.dy + i * TAB_PANEL_SIDE.pitch, w, TEXT_BAR_H, C.dot),
   )
-  if (isStill(k)) c.pointer(TABS_REST.x, TABS_REST.y)
+  if (atRest(k)) c.pointer(TABS_REST.x, TABS_REST.y)
   else if (k.phase === 'trigger' || k.phase === 'hold') c.pointer(TAB.xs[1]! + TAB.w / 2, TAB.y + TABS_POINTER_DY, k.slot === CLICK_SLOT)
   else if (k.slot === FIRST_EXIT) c.pointer(TAB.xs[0]! + TAB.w / 2, TAB.y + TABS_POINTER_DY, true)
 }
@@ -169,7 +159,7 @@ const accordion: Scene = (c, k) => {
     }
   })
   const header = { x: FAQ_ROW.x + FAQ_ROW.w / 2, y: FAQ_ROW.ys[FAQ_OPEN]! + FAQ_ROW.h / 2 }
-  if (isStill(k)) c.pointer(FAQ_REST.x, FAQ_REST.y)
+  if (atRest(k)) c.pointer(FAQ_REST.x, FAQ_REST.y)
   else if (k.phase === 'trigger' || k.phase === 'hold') c.pointer(header.x, header.y, k.slot === CLICK_SLOT)
   else if (k.slot === FIRST_EXIT) c.pointer(header.x, header.y, true)
 }
@@ -192,7 +182,7 @@ const MODAL_KEYCAP = { label: 'ESC', margin: 6 }
 const modal: Scene = (c, k) => {
   stage.desktop(c, { rows: 3, cards: 0 })
   button(c, MODAL_OPEN, 'Open', k.phase === 'trigger' ? blend8(C.btn, C.white, 0.25) : C.btn, C.white)
-  if (isStill(k)) {
+  if (atRest(k)) {
     c.pointer(MODAL_REST.x, MODAL_REST.y)
     return
   }
@@ -237,7 +227,7 @@ const bottomSheet: Scene = (c, k) => {
   const { screen } = stage.phone(c)
   SHEET_PAGE_BARS.widths.forEach((w, i) => c.rect(screen.x + SHEET_PAGE_BARS.dx, screen.y + SHEET_PAGE_BARS.dy + i * SHEET_PAGE_BARS.pitch, w, TEXT_BAR_H, C.line))
   button(c, SHEET_SHARE, 'Share', k.phase === 'trigger' ? blend8(C.btn, C.white, 0.25) : C.btn, C.white)
-  if (isStill(k)) {
+  if (atRest(k)) {
     c.touch(SHEET_TOUCH_REST.x, SHEET_TOUCH_REST.y)
     return
   }
@@ -290,7 +280,7 @@ const dropdown: Scene = (c, k) => {
     }
   }
   const hoverPt = { x: list.x + list.w / 2, y: list.y + DD_HOVER.row * DD_LIST.rowH + DD_LIST.rowH / 2 }
-  if (isStill(k)) c.pointer(DD_REST.x, DD_REST.y)
+  if (atRest(k)) c.pointer(DD_REST.x, DD_REST.y)
   else if (k.phase === 'trigger') c.pointer(DD_BUTTON.x + DD_BUTTON.w / 2, DD_BUTTON.y + DD_BUTTON.h / 2, k.slot === CLICK_SLOT)
   else if (hover) c.pointer(hoverPt.x, hoverPt.y, k.slot === FIRST_EXIT)
 }
@@ -306,7 +296,7 @@ const TIP_POINTER = { dx: 2, dy: 2 }
 
 const tooltip: Scene = (c, k) => {
   stage.desktop(c, { rows: 3, cards: 0 })
-  const hot = !isStill(k) && k.phase !== 'exit' || k.slot === FIRST_EXIT
+  const hot = !atRest(k) && k.phase !== 'exit' || k.slot === FIRST_EXIT
   TIP_ICONS.xs.forEach((x, i) => {
     const hover = hot && i === TIP_TARGET
     c.rrect(x, TIP_ICONS.y, TIP_ICONS.size, TIP_ICONS.size, 4, hover ? C.line : C.bar)
@@ -320,7 +310,7 @@ const tooltip: Scene = (c, k) => {
     TIP_TAIL_ROWS.forEach((w, i) => c.rect(cx - w / 2, y + TIP_BUBBLE.h + i, w, 1, fade(C.ink)))
     c.text(cx - textWidth(TIP_BUBBLE.label, LABEL_SCALE) / 2, y + 3, TIP_BUBBLE.label, fade(C.white), LABEL_SCALE)
   }
-  if (isStill(k) || k.slot === FIRST_EXIT) c.pointer(TIP_REST.x, TIP_REST.y)
+  if (atRest(k) || k.slot === FIRST_EXIT) c.pointer(TIP_REST.x, TIP_REST.y)
   else if (k.phase === 'trigger' || k.phase === 'hold') c.pointer(TIP_ICONS.xs[TIP_TARGET]! + TIP_ICONS.size / 2 + TIP_POINTER.dx, TIP_ICONS.y + TIP_ICONS.size / 2 + TIP_POINTER.dy)
 }
 
@@ -348,7 +338,7 @@ const toast: Scene = (c, k) => {
     }
   }
   if (k.phase === 'trigger') c.pointer(b.x + POINTER_ON_BUTTON.dx, b.y + POINTER_ON_BUTTON.dy, k.slot === CLICK_SLOT)
-  else if (isStill(k) || showsActor(k)) c.pointer(TOAST_REST.x, TOAST_REST.y)
+  else if (atRest(k) || showsActor(k)) c.pointer(TOAST_REST.x, TOAST_REST.y)
 }
 
 // --- carousel: one slide fills the frame; clicking the next arrow slides it out left as the next comes in, and the dots move.
@@ -383,7 +373,7 @@ const carousel: Scene = (c, k) => {
   const dotsX = VIEW_W / 2 - ((DOTS.count - 1) * DOTS.pitch) / 2
   for (let i = 0; i < DOTS.count; i++) c.rrect(dotsX + i * DOTS.pitch - DOTS.size / 2, DOTS.y, DOTS.size, DOTS.size, DOTS.size / 2, i === active ? C.btn : C.dot)
   c.text((VIEW_W - textWidth(CAROUSEL_LABEL.label, TITLE_SCALE)) / 2, CAROUSEL_LABEL.y, CAROUSEL_LABEL.label, C.text, TITLE_SCALE)
-  if (isStill(k)) c.pointer(CAROUSEL_REST.x, CAROUSEL_REST.y)
+  if (atRest(k)) c.pointer(CAROUSEL_REST.x, CAROUSEL_REST.y)
   else if (next) c.pointer(ARROW.nextX + ARROW.size / 2, ARROW.y + ARROW.size / 2, k.slot === CLICK_SLOT)
   else if (k.slot === FIRST_EXIT) c.pointer(ARROW.prevX + ARROW.size / 2, ARROW.y + ARROW.size / 2, true)
 }
@@ -419,7 +409,7 @@ const skeleton: Scene = (c, k) => {
   }
   if (k.p > 0) c.text(SKEL_LABEL.x, SKEL_LABEL.y, SKEL_LABEL.label, blend8(C.bg, C.dot, k.p), TITLE_SCALE)
   if (k.phase === 'trigger') c.pointer(b.x + POINTER_ON_BUTTON.dx, b.y + POINTER_ON_BUTTON.dy, k.slot === CLICK_SLOT)
-  else if (isStill(k) || showsActor(k)) c.pointer(SKEL_REST.x, SKEL_REST.y)
+  else if (atRest(k) || showsActor(k)) c.pointer(SKEL_REST.x, SKEL_REST.y)
 }
 
 export const COMPONENT: Readonly<Record<string, Scene>> = {

@@ -11,7 +11,7 @@ export async function mirror($: EngineInterface, state: PaneState): Promise<Pane
     if (state.plan) await $.store.set(KEY, { session: await $.session.id(), state } satisfies Mirror)
     else await $.store.delete(KEY)
   } catch {
-    // ponytail: the mirror is insurance; a store that refuses never blocks the pane
+    // The mirror is insurance; a store that refuses never blocks the pane.
   }
   return state
 }

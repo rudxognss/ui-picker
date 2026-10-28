@@ -9,7 +9,7 @@ for (let n = 0; n < 256; n++) {
   CRC_TABLE[n] = c >>> 0
 }
 
-export function crc32(bytes: Uint8Array): number {
+function crc32(bytes: Uint8Array): number {
   let c = 0xffffffff
   for (const b of bytes) c = CRC_TABLE[(c ^ b) & 255]! ^ (c >>> 8)
   return (c ^ 0xffffffff) >>> 0
@@ -24,10 +24,10 @@ function chunk(type: string, data: Uint8Array): Uint8Array {
   return Buffer.concat([be32(data.length), body, be32(crc32(body))])
 }
 
-export type IndexedImage = { W: number; H: number; idx: Uint8Array; palette: readonly number[] }
+type IndexedImage = { W: number; H: number; idx: Uint8Array; palette: readonly number[] }
 
 /** Palette and indices with unused colors dropped; 4-bit PNGs need the used count, not the allocation count. */
-export function compact(img: IndexedImage): IndexedImage {
+function compact(img: IndexedImage): IndexedImage {
   const remap = new Int16Array(img.palette.length).fill(-1)
   const palette: number[] = []
   const idx = new Uint8Array(img.idx.length)
@@ -42,7 +42,7 @@ export function compact(img: IndexedImage): IndexedImage {
   return { W: img.W, H: img.H, idx, palette }
 }
 
-export const bitDepthOf = (colors: number): 4 | 8 => (colors <= 16 ? 4 : 8)
+const bitDepthOf = (colors: number): 4 | 8 => (colors <= 16 ? 4 : 8)
 
 export function encodeIndexedPng(input: IndexedImage): { png: Uint8Array; bitDepth: 4 | 8; colors: number } {
   const img = compact(input)

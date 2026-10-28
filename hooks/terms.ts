@@ -4,9 +4,9 @@ import type { L, Lang } from '../types'
 
 export type { Lang }
 type Builtin = 'en' | 'ko'
-export type Cat = 'layout' | 'component' | 'effect'
-export type ParamSpec = { key: string; en: string; ko: string; unit?: string; values: readonly (string | number)[]; def: string | number }
-export type Term = { en: string; ko: string; cat: Cat; when: Record<Builtin, string>; caption: Record<Builtin, string>; params: ParamSpec[]; alt: string[] }
+type Cat = 'layout' | 'component' | 'effect'
+type ParamSpec = { key: string; en: string; ko: string; unit?: string; values: readonly (string | number)[]; def: string | number }
+type Term = { en: string; ko: string; cat: Cat; when: Record<Builtin, string>; caption: Record<Builtin, string>; params: ParamSpec[]; alt: string[] }
 
 /** `a..b` by `s` (inclusive), rounded to the step's precision so 0.1 steps stay exact. */
 const range = (a: number, b: number, s = 1): number[] => {

@@ -24,9 +24,9 @@ const PHASE_ORDER: readonly Phase[] = ['idle', 'trigger', 'enter', 'hold', 'exit
 /** The slot loop phase `t` (any real, wraps at 1) falls into. */
 export const slotOf = (t: number): number => Math.min(SLOTS - 1, Math.floor((((t % 1) + 1) % 1) * SLOTS))
 
-const easeOut = (x: number): number => 1 - (1 - x) * (1 - x)
+export const easeOut = (x: number): number => 1 - (1 - x) * (1 - x)
 
-export function phaseOf(slot: number): Phase {
+function phaseOf(slot: number): Phase {
   return PHASE_ORDER.find(ph => slot >= PHASES[ph][0] && slot < PHASES[ph][1]) ?? 'rest'
 }
 
@@ -80,7 +80,7 @@ export const C = {
 } as const
 
 const ch = (c: number, shift: number): number => (c >> shift) & 255
-export function blend(a: number, b: number, p: number): number {
+function blend(a: number, b: number, p: number): number {
   const q = Math.min(1, Math.max(0, p))
   const mix = (s: number): number => Math.round(ch(a, s) * (1 - q) + ch(b, s) * q)
   return (mix(16) << 16) | (mix(8) << 8) | mix(0)
@@ -89,7 +89,7 @@ export function blend(a: number, b: number, p: number): number {
 export const blend8 = (a: number, b: number, p: number): number => blend(a, b, Math.round(p * 8) / 8)
 
 /** Darkening per unit of `dim(p)`. */
-export const DIM = 0.45
+const DIM = 0.45
 export const dimColor = (c: number, p: number): number => blend8(c, C.shadow, DIM * p)
 
 // --- Pointer, touch, keycap: shared by every backend, drawn with the primitives above.
@@ -102,7 +102,7 @@ const RING_ARC = { from: 100, to: 350, step: 10 }
 const TOUCH_R = 4.5
 const TOUCH_RING_R = 8
 export const KEYCAP_H = 9
-export const KEYCAP_MIN_W = 16
+const KEYCAP_MIN_W = 16
 const KEYCAP_PAD = 2
 
 const dot = (c: Canvas, x: number, y: number, color: number): void => c.rect(x, y, 1, 1, color)
@@ -176,7 +176,7 @@ const BODY_Y = 30
 const CARDS_Y = 90
 const CARD: Rect = { x: 0, y: CARDS_Y, w: 60, h: 40 }
 const CARDS_X = [16, 84]
-const TEXT_BAR_H = 4
+export const TEXT_BAR_H = 4
 const TEXT_BAR_PITCH = 12
 const TEXT_BAR_WIDTHS = [160, 120, 140]
 const PHONE: Rect = { x: 70, y: 0, w: 100, h: 160 }

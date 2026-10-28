@@ -6,7 +6,7 @@ const fires = (text: string): boolean => UI_KEYWORDS.test(text) && !META.test(te
 
 test('trigger: UI requests fire; the mod\'s own wire echoed in a prompt does not', async () => {
   for (const text of ['빵집 사이트 하나 만들어보자', 'new dashboard', 'add a settings page', '설정 화면 만들어줘']) expect(fires(text)).toBe(true)
-  expect(fires('ui_board (MCP)(lang: "ko", decisions: [...])')).toBe(false)
+  expect(fires('ui_pick (MCP)(title: "Bakery", ui: {"menu": ["card-layout", "bento-grid"]})')).toBe(false)
   expect(fires('the ui-picker pane shows the settings page')).toBe(false)
   expect(fires('mcp__ui-picker__ui_pick returned {"review":true,"questions":1} for the page')).toBe(false)
   expect(fires('fix the failing unit test')).toBe(false)
@@ -16,7 +16,7 @@ test('trigger: prompt.submit adds UI_CONTEXT under the META guard', async ($, on
   bottoms(on)
   await $.session.start(SESSION)
   expect((await $.prompt.submit(composer('빵집 사이트 하나 만들어보자'))).context).toEqual([UI_CONTEXT])
-  const echo = await $.prompt.submit(composer('ui_board (MCP)(lang: "ko", decisions: [{ area: "page" }])'))
+  const echo = await $.prompt.submit(composer('{"review":true,"questions":1} came back for the settings page'))
   expect(echo.context ?? []).toEqual([])
   const kept = await $.prompt.submit({ ...composer('new dashboard'), context: ['earlier'] })
   expect(kept.context).toEqual(['earlier', UI_CONTEXT])

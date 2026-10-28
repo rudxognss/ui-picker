@@ -9,8 +9,8 @@ import type { StringKey } from './strings'
 import { t } from './strings'
 import { chipsOf, nameOf, paramLabel, TERMS } from './terms'
 
-export type ReviewMode = 'review' | 'building' | 'done'
-export type ReviewHandlers = {
+type ReviewMode = 'review' | 'building' | 'done'
+type ReviewHandlers = {
   expand: (i: number) => void
   select: (i: number, key: string, raw: string) => void
   note: (i: number, text: string) => void

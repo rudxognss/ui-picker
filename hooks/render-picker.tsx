@@ -13,14 +13,14 @@ export type PaneEvent = Frozen<RenderInputOf<'Pane', 'terminal'>>
 export type Card = { id: string; label: string }
 /** What the picker draws: the cursor question while asking, a synthetic one over `[term, ...alt]` while swapping. */
 export type Ask = { lang: Lang; labels?: Labels; title?: string; area: string; progress?: string; prompt: string; cards: Card[]; cancel?: boolean }
-export type AskHandlers = { pick: (i: number) => void; cancel: () => void }
+type AskHandlers = { pick: (i: number) => void; cancel: () => void }
 
 const MIN_W = 16
 const MAX_W = 160
 const NO_PREVIEW = '(no preview)'
 
 /** Every candidate's preview: as wide as the body allows, 3:2; the stack scrolls when it outgrows the pane. */
-export function previewSize(e: PaneEvent): { W: number; H: number } {
+function previewSize(e: PaneEvent): { W: number; H: number } {
   const W = Math.max(MIN_W, Math.min(e.props.bodyColumns - 2, MAX_W))
   return { W, H: imageRows(W, 6, 48) }
 }

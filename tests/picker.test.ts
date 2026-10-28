@@ -15,7 +15,6 @@ const DRAWER_WHEN = 'Secondary content or settings that must not leave the page.
 const DRAWER_CAPTION = 'A panel slides in from the right over a dimmed page; Esc closes it'
 const MODAL_CAPTION = 'A centered dialog grows from the middle over a dimmed page; Cancel or Esc closes it'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const big = async (ui: any, j = 0) => (await ui.find({ key: 'preview-' + j, type: 'Image' })) ?? (await ui.find({ key: 'preview-' + j, type: 'Raster' }))
 
 test('ui_pick renders question 1 of 2: every option large with caption, when and chips; one Button per option', async ($, on) => {

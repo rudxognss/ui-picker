@@ -10,8 +10,8 @@ export type AnimationHooks = {
   onImagesUnsupported?: (reason: string) => void | Promise<void>
 }
 
-export const CYCLE_MS = 4000
-export const TICK_MS = 100
+const CYCLE_MS = 4000
+const TICK_MS = 100
 const MAX_MISSES = 15
 
 let tick: Timer | undefined

@@ -3,17 +3,21 @@ import { inferLang } from './state'
 import { STRING_KEYS } from './strings'
 import { defaultsOf, TERMS } from './terms'
 
-export { inferLang }
-
 export type Ok<T> = { ok: true; value: T }
 export type Deny = { ok: false; deny: string }
+
+const MAX_AREAS = 9
+const MAX_AREA = 40
+const MAX_QUESTIONS = 3
+const MAX_LABEL = 160
+const LANG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})?$/
 
 export const UI_PICK_SCHEMA: Record<string, unknown> = {
   type: 'object',
   required: ['ui'],
   properties: {
     title: { type: 'string', maxLength: 40 },
-    lang: { type: 'string', pattern: '^[a-z]{2,3}(-[A-Za-z0-9]{2,8})?$', description: "The person's language (BCP-47: en, ko, ja, zh-TW, de...). Omitted: ko when title/areas contain Hangul, else en." },
+    lang: { type: 'string', pattern: LANG.source, description: "The person's language (BCP-47: en, ko, ja, zh-TW, de...). Omitted: ko when title/areas contain Hangul, else en." },
     labels: {
       type: 'object',
       additionalProperties: true,
@@ -22,7 +26,7 @@ export const UI_PICK_SCHEMA: Record<string, unknown> = {
     ui: {
       type: 'object',
       minProperties: 1,
-      maxProperties: 9,
+      maxProperties: MAX_AREAS,
       additionalProperties: true,
       description: 'area -> id (decided) or area -> [2-4 ids] (ask, recommended first). Insertion order = page order. Max 3 arrays.',
     },
@@ -37,16 +41,12 @@ export const UI_PICK_SCHEMA: Record<string, unknown> = {
 type Rec = Record<string, unknown>
 const rec = (v: unknown): Rec | undefined => (typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Rec) : undefined)
 const deny = (deny: string): Deny => ({ ok: false, deny })
-const MAX_AREA = 40
-const MAX_QUESTIONS = 3
-const MAX_LABEL = 160
-const LANG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})?$/
 
 const str = (path: string, v: unknown): Ok<string> | Deny =>
   typeof v === 'string' && v.length <= MAX_LABEL ? { ok: true, value: v } : deny(`${path}: expected a string of at most ${MAX_LABEL} chars`)
 
 /** Pane text in the person's language: known string keys, known ids, known param keys; anything else is a field deny. */
-export function validateLabels(input: unknown): Ok<Labels> | Deny {
+function validateLabels(input: unknown): Ok<Labels> | Deny {
   const o = rec(input)
   if (!o) return deny('labels: expected an object')
   const out: Labels = {}
@@ -99,7 +99,7 @@ export function validatePick(input: unknown): Ok<Plan> | Deny {
   if (o.lang !== undefined && (typeof o.lang !== 'string' || !LANG.test(o.lang))) return deny('lang: expected a language code like en, ko, ja, zh-TW')
   const ui = rec(o.ui) ?? {}
   const areas = Object.keys(ui)
-  if (areas.length < 1 || areas.length > 9) return deny(`ui: expected 1 to 9 areas, got ${areas.length}`)
+  if (areas.length < 1 || areas.length > MAX_AREAS) return deny(`ui: expected 1 to ${MAX_AREAS} areas, got ${areas.length}`)
   const decisions: Decision[] = []
   let asked = 0
   for (const area of areas) {
@@ -121,7 +121,7 @@ export function validatePick(input: unknown): Ok<Plan> | Deny {
       decisions.push({ area, term: v, params: defaultsOf(v), source: 'model' })
     }
   }
-  if (asked > MAX_QUESTIONS) return deny('ui: more than 3 questions')
+  if (asked > MAX_QUESTIONS) return deny(`ui: more than ${MAX_QUESTIONS} questions`)
   const params = rec(o.params) ?? {}
   for (const area of Object.keys(params)) {
     const d = decisions.find(x => x.area === area)

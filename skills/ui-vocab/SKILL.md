@@ -43,14 +43,14 @@ ui-picker: build
 - <area>: <En term>[ (tag)][ · <key> <value><unit>]…[ · "<note>"]
 ```
 
-Header English in both languages; term names English; keys English. Tags: `(your pick)` / `(네 선택)` the person answered; `(recommended)` / `(추천 적용)` Esc or a typed prompt resolved the question; `(changed)` / `(변경)` a model-decided row the person edited (not added to picked or recommended rows). Params appear only when they differ from the card default. Bakery after the person picked Card Layout, set cols 4 and gap 16, lift 4 and a note:
+Header, term names and keys are English in every language. Tags: `(your pick)` the person answered; `(recommended)` Esc or a typed prompt resolved the question; `(changed)` a model-decided row the person edited (not added to picked or recommended rows); in `ko` the tags read `(네 선택)` / `(추천 적용)` / `(변경)`, in other languages the `labels.ui` text. Params appear only when they differ from the card default. Bakery after the person picked Card Layout, set cols 4 and gap 16, lift 4 and a note:
 
 ```
 ui-picker: build
-- 상단 내비게이션: Sticky Header
-- 상단 영역: Hero Section
-- 빵 메뉴: Card Layout (네 선택) · cols 4 · gap 16px
-- 메뉴 카드: Hover Effect (변경) · lift 4px · "그림자도 살짝"
+- top navigation: Sticky Header
+- top section: Hero Section
+- bread menu: Card Layout (your pick) · cols 4 · gap 16px
+- menu cards: Hover Effect (changed) · lift 4px · "a soft shadow too"
 ```
 
 Change (user message after Enter on `Send changes` once the build turn ended): header `ui-picker: change`, then only the rows whose term, params or note differ from the last message.
@@ -63,7 +63,7 @@ ui-picker: a plan is pending in the pane; the person has not confirmed it:
 If this prompt is a question or unrelated, answer it and leave the plan in the pane. If it changes or approves this UI plan, call ui_pick once more with the whole amended plan (the rows above as decided ids) and end the turn with "Check the right pane."; the person confirms there with Enter. Do not build from this block.
 ```
 
-ko header: `ui-picker: 패널에 확인 대기 중인 계획이 있습니다 (아직 확정 아님):`.
+The header is localized the same way as the pane (ko: `ui-picker: 패널에 확인 대기 중인 계획이 있습니다 (아직 확정 아님):`).
 
 ## Question eligibility
 

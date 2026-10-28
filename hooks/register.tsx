@@ -116,6 +116,19 @@ async function recover($: EngineInterface): Promise<PaneState> {
   return m
 }
 
+/** Pick `i` on asked row `row`: stays asking while questions remain, else settles to review and reopens without closeOnEscape (Esc in review only returns the keys). */
+async function advancePick($: EngineInterface, s: PaneState, row: number, i: number): Promise<Plan> {
+  const picked = applyPick(s.plan!, row, i, 'user')
+  if (cursor(picked) !== undefined) {
+    await put($, () => withImages({ mode: 'asking', plan: picked }, s))
+    return picked
+  }
+  stopAnimation()
+  await put($, () => withImages({ mode: 'review', plan: settle(picked) }, s))
+  await $.ui.open(REVIEW_OPEN)
+  return picked
+}
+
 async function onPick($: EngineInterface, i: number): Promise<void> {
   if (picking) return
   picking = true
@@ -124,16 +137,7 @@ async function onPick($: EngineInterface, i: number): Promise<void> {
     if (!s.plan) return
     if (s.mode === 'asking') {
       const row = cursor(s.plan)
-      if (row === undefined) return
-      const picked = applyPick(s.plan, row, i, 'user')
-      if (cursor(picked) !== undefined) {
-        await put($, () => withImages({ mode: 'asking', plan: picked }, s))
-        return
-      }
-      stopAnimation()
-      await put($, () => withImages({ mode: 'review', plan: settle(picked) }, s))
-      // Clears the ask open's closeOnEscape: Esc in review only returns the keys.
-      await $.ui.open(REVIEW_OPEN)
+      if (row !== undefined) await advancePick($, s, row, i)
       return
     }
     if (s.mode === 'swapping' && s.plan.swapping !== undefined) {
@@ -149,7 +153,7 @@ async function onPick($: EngineInterface, i: number): Promise<void> {
   }
 }
 
-/** Shows option `i` large and moves the keys to its Button, so Enter picks what is on screen. */
+/** Keep: leaves swapping without changing the row. */
 function onSwapCancel($: EngineInterface): Promise<void> {
   return move($, ['swapping'], after, p => drop(p, 'swapping'))
 }
@@ -169,12 +173,14 @@ async function onExpand($: EngineInterface, i: number): Promise<void> {
   }
 }
 
-function onSelect($: EngineInterface, i: number, key: string, raw: string): Promise<void> {
-  return edit($, ['review', 'done'], p => {
+/** A pick leaves the Select, back to the row's Button: the next Enter closes the row and the digit hotkeys work again. */
+async function onSelect($: EngineInterface, i: number, key: string, raw: string): Promise<void> {
+  await edit($, ['review', 'done'], p => {
     const d = p.decisions[i]
     const spec = d ? TERMS[d.term]?.params.find(s => s.key === key) : undefined
     return spec ? setParam(p, i, key, parseValue(spec, raw)) : p
   })
+  await $.ui.focus({ requestId: 'ui-picker', key: `row-${i}` }).then(() => undefined, () => undefined)
 }
 
 function onNote($: EngineInterface, i: number, text: string): Promise<void> {
@@ -229,15 +235,10 @@ export const register: Register = on => {
           const row = cursor(p)
           const n = row === undefined ? 0 : (p.decisions[row]?.options?.length ?? 0)
           if (row === undefined || Number(k) > n) return { drop: t(p, 'typedNoOption', { k, n }) }
-          const picked = applyPick(p, row, Number(k) - 1, 'user')
-          if (cursor(picked) !== undefined) {
-            await put($, () => withImages({ mode: 'asking', plan: picked }, s))
-            return { drop: t(p, 'typedPick', { k, i: answered(picked) + 1, n: questions(picked) }) }
-          }
-          stopAnimation()
-          await put($, () => withImages({ mode: 'review', plan: settle(picked) }, s))
-          await $.ui.open(REVIEW_OPEN)
-          return { drop: t(p, 'typedLast', { k }) }
+          const picked = await advancePick($, s, row, Number(k) - 1)
+          return cursor(picked) !== undefined
+            ? { drop: t(p, 'typedPick', { k, i: answered(picked) + 1, n: questions(picked) }) }
+            : { drop: t(p, 'typedLast', { k }) }
         }
         // Any other prompt travels with the pending plan: the model answers a question and leaves it, or re-plans with ui_pick
         // (accepted once the person has spoken: `prompted`). Nothing is confirmed by typing; Enter in the pane builds.

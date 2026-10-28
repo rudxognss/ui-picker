@@ -140,7 +140,7 @@ export const BAKERY = call(
   ui('메뉴 카드', 'hover-effect'),
 )
 
-/** Two questions, English: `drawer` has a PNG today, the others fall back to Raster cell art or `(no preview)`. */
+/** Two questions, English; every candidate has a PNG preview (Raster cell art once a blit is refused). */
 export const TWO = call({ lang: 'en' }, ui('settings', ['drawer', 'modal', 'bottom-sheet']), ui('features', ['bento-grid', 'card-layout']))
 
 export const TURN: TurnCompleteInput = { answer: 'Built it.', durationMs: 1200, isAborted: false, turnId: 't1', reason: 'answer' }

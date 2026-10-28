@@ -1,21 +1,10 @@
 // Layout scenes (7 ids). Template: component.ts `drawer`. Motion is a pure function of k.p; pointers appear only in idle, trigger,
 // hold and the first exit slot. Load-driven scenes (hero, cards, bento, split) share one trigger: the pointer clicks the bar's `Go`.
 import type { Canvas, Keyframe, Rect, Scene } from '../canvas'
-import { BAR_H, blend8, C, disc, inSlots, PHASES, stage, VIEW_H, VIEW_W } from '../canvas'
+import { BAR_H, blend8, C, disc, inSlots, stage, VIEW_H, VIEW_W } from '../canvas'
 import { textWidth } from '../font5x7'
+import { clamp01, CLICK_SLOT, fade, FIRST_EXIT, LABEL_SCALE, POINTER_ON_BUTTON, TITLE_SCALE } from './shared'
 
-/** Labels at 2 units per dot stay legible once a frame is downsampled into a card. */
-const LABEL_SCALE = 2
-/** Free-standing page titles; labels inside components stay at LABEL_SCALE so they fit their boxes. */
-const TITLE_SCALE = 3
-/** The second trigger slot shows the click rings. */
-const CLICK_SLOT = PHASES.trigger[0] + 1
-const FIRST_EXIT = PHASES.exit[0]
-/** Pointer tip relative to the bar button it presses. */
-const POINTER_ON_BUTTON = { dx: 12, dy: 5 }
-const clamp01 = (v: number): number => Math.min(1, Math.max(0, v))
-/** Mix from the page background toward `color`: a fade-in that adds no palette entry at p = 0 or 1. */
-const fade = (color: number, p: number): number => blend8(C.bg, color, p)
 const hoverOf = (color: number): number => blend8(color, C.white, 0.25)
 
 /** Idle/rest pointer at `rest`; trigger pointer on the bar button, clicking at CLICK_SLOT. True when one of those phases was drawn. */
@@ -102,8 +91,7 @@ const RLABEL = { x: 12, y: 142, label: 'Responsive' }
 const RWIDTHS = ['1280px', '1024px', '375px']
 const RWIDTH_MARGIN = 6
 const R_REST = { x: 200, y: 146 }
-/** Columns by how far the window has narrowed. */
-/** Thresholds sit late because p eases out: 3 columns for the first enter slot, 2 for the next two, then 1. */
+/** Columns by how far the window has narrowed; thresholds sit late because p eases out: 3 for the first enter slot, 2 for the next two, then 1. */
 const colsAt = (p: number): number => (p < 0.4 ? 3 : p < 0.8 ? 2 : 1)
 
 const responsiveLayout: Scene = (c, k) => {

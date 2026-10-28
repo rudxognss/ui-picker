@@ -16,7 +16,7 @@ export const UI_KEYWORDS =
   /\b(page|screen|button|menu|settings?|cards?|layout|landing|dashboard|modal|drawer|navbar|sidebar|hero|ui|ux|app|website|site|kiosk|frontend|front-end)\b|화면|페이지|버튼|메뉴|설정|카드|레이아웃|랜딩|대시보드|모달|드로어|사이드바|히어로|앱|웹사이트|사이트|키오스크|프론트/i
 
 /** A prompt that talks about this mod or quotes its wire (a tool call echo, a result) is not a UI request. */
-export const META = /ui[-_ ]?picker|ui_pick|ui_board|ui-vocab|mcp__|"(shown|review|asked)":/i
+export const META = /ui[-_ ]?picker|ui_pick|ui-vocab|mcp__|"(review|questions)":/i
 
 /** Closes the pending-plan context block: what the model does with a prompt typed over a plan it has not been handed yet. */
 export const PENDING_TAIL =

@@ -97,8 +97,8 @@ const GLYPHS: readonly string[] = [
   /* ~ */ '..... ..... .#..# #.#.# #..#. ..... .....',
 ]
 
-export const FONT_FIRST = 32
-export const FONT_LAST = 126
+const FONT_FIRST = 32
+const FONT_LAST = 126
 export const GLYPH_W = 5
 export const GLYPH_H = 7
 /** Horizontal advance per character: glyph width plus one dot of spacing. */

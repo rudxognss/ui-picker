@@ -17,7 +17,7 @@ export function inferLang(title: string | undefined, areas: readonly string[]): 
 /** State is JSON; a deep copy keeps `original` apart from later edits. */
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T
 
-export const isAsked = (d: Decision): boolean => d.options !== undefined
+const isAsked = (d: Decision): boolean => d.options !== undefined
 
 export const questions = (p: Plan): number => p.decisions.filter(isAsked).length
 

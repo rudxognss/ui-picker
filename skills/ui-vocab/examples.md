@@ -2,35 +2,35 @@
 
 Three requests end to end: request → area table → the one `ui_pick` call → what the pane shows → the exact message the model receives → build checklist. Rules in `SKILL.md`; cards in `terms.md`. Payload sizes measured with `wc -c` on the single-line JSON.
 
-## Example 1: bakery site (1 question; Korean)
+## Example 1: bakery site (1 question; English)
 
-Request: `빵집 사이트 하나 만들어보자`
+Request: `Build a bakery website. Make the menu section look nice.`
 
 | area | classification | `ui` value |
 |---|---|---|
-| 상단 내비게이션 | default (top navigation → sticky-header) | `"sticky-header"` |
-| 상단 영역 | default (landing opens with one message) | `"hero-section"` |
-| 빵 메뉴 | ask (area implied by "빵집", pattern not named, 3 fit, structure differs) | `["card-layout", "bento-grid", "carousel"]` |
-| 메뉴 카드 | default (clickable cards need pointer affordance) | `"hover-effect"` |
+| Top navigation | default (top navigation → sticky-header) | `"sticky-header"` |
+| Hero | default (landing opens with one message) | `"hero-section"` |
+| Menu section | ask ("look nice" attached to a named section, pattern not named, 3 fit, structure differs) | `["card-layout", "bento-grid", "carousel"]` |
+| Menu cards | default (clickable cards need pointer affordance) | `"hover-effect"` |
 
-`ui_pick` (191 B; `lang` inferred `ko` from Hangul):
+`ui_pick` (`lang: "en"`):
 
 ```json
-{"title":"빵집 사이트","ui":{"상단 내비게이션":"sticky-header","상단 영역":"hero-section","빵 메뉴":["card-layout","bento-grid","carousel"],"메뉴 카드":"hover-effect"}}
+{"title":"Bakery website","lang":"en","ui":{"Top navigation":"sticky-header","Hero":"hero-section","Menu section":["card-layout","bento-grid","carousel"],"Menu cards":"hover-effect"}}
 ```
 
-Result `{"review":true,"questions":1}`. The turn ends with one line: `오른쪽 패널을 확인하세요.`
+Result `{"review":true,"questions":1}`. The turn ends with one line: `Check the right pane.`
 
-Pane: `질문 1/1` over three animated cards `1: 카드 레이아웃 · 추천`, `2: 벤토 그리드`, `3: 캐러셀`; the person presses `1`, the review lists `결정 4`, opens row 3 (`3`) and sets 열 → 4, 간격 → 16px, opens row 4 and sets 리프트 → 4px with the note `그림자도 살짝`, then Enter on `빌드`.
+Pane: `Question 1 of 1` over three animated cards `1: Card Layout · recommended`, `2: Bento Grid`, `3: Carousel`; the person presses `1`, the review lists `decisions 4`, opens row 3 (`3`) and sets columns → 4, gap → 16px, opens row 4 and sets lift → 4px with the note `a soft shadow too`, then Enter on `Build`.
 
-Message the model receives (user message; `tests/confirm.test.ts`):
+Message the model receives (user message; the Korean twin of this flow is `tests/confirm.test.ts`):
 
 ```
 ui-picker: build
-- 상단 내비게이션: Sticky Header
-- 상단 영역: Hero Section
-- 빵 메뉴: Card Layout (네 선택) · cols 4 · gap 16px
-- 메뉴 카드: Hover Effect (변경) · lift 4px · "그림자도 살짝"
+- Top navigation: Sticky Header
+- Hero: Hero Section
+- Menu section: Card Layout (your pick) · cols 4 · gap 16px
+- Menu cards: Hover Effect (changed) · lift 4px · "a soft shadow too"
 ```
 
 Build checklist (card `defaults` + listed params; unlisted params keep the card default):
@@ -76,7 +76,7 @@ Build checklist:
 - Card Layout: three equal-height plan cards, 24px gap, one labelled CTA each, 2 per row at 1024px, 1 under 768px.
 - Accordion: `<button aria-expanded>` headers with `aria-controls`, chevron, 200ms expand, several may be open, headers ≥44px on mobile.
 
-## Example 3: Korean app landing page (3 questions; one answered, Esc, then a change typed instead of Enter)
+## Example 3: app landing page in Korean (3 questions; `lang` inferred `ko`; one answered, Esc, then a change typed instead of Enter)
 
 Request: `우리 앱 랜딩 페이지 만들어 줘. 기능 소개랑 사용자 후기 넣고, 멋지게 요즘 느낌으로.`
 

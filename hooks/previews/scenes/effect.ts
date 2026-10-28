@@ -1,19 +1,10 @@
-// Effect scenes (8 ids). Template: component.ts `drawer`. Motion is a pure function of k.p except where a storyboard in the
-// spec (§8.3 scroll-reveal) spreads the scroll over the hold; pointer/touch only in idle, trigger, hold, rest and the first exit slot.
+// Effect scenes (8 ids). Template: component.ts `drawer`. Motion is a pure function of k.p except scroll-reveal, whose
+// scroll is spread over the hold; pointer/touch only in idle, trigger, hold, rest and the first exit slot.
 import type { Canvas, Keyframe, Rect, Scene } from '../canvas'
 import { blend8, C, disc, PHASES, stage, VIEW_H, VIEW_W } from '../canvas'
+import { atRest, clamp01, CLICK_SLOT, easeOut, fade, FIRST_EXIT, LABEL_SCALE, TITLE_SCALE } from './shared'
 
-const LABEL_SCALE = 2
-/** Free-standing page titles; labels inside components stay at LABEL_SCALE so they fit their boxes. */
-const TITLE_SCALE = 3
-/** The second trigger slot shows the click or tap ring. */
-const CLICK_SLOT = PHASES.trigger[0] + 1
-const firstExit = (k: Keyframe): boolean => k.slot === PHASES.exit[0]
-const atRest = (k: Keyframe): boolean => k.phase === 'idle' || k.phase === 'rest'
-const clamp01 = (x: number): number => Math.min(1, Math.max(0, x))
-const easeOut = (x: number): number => 1 - (1 - x) * (1 - x)
-/** `color` faded toward the page background; `r` 0 = invisible, 1 = solid. */
-const fade = (color: number, r: number): number => blend8(C.bg, color, r)
+const firstExit = (k: Keyframe): boolean => k.slot === FIRST_EXIT
 
 /** Placeholder card: image block and two text bars, every color faded by `r`. */
 function card(c: Canvas, x: number, y: number, w: number, h: number, fill: number, r = 1): void {
@@ -75,7 +66,7 @@ const hoverEffect: Scene = (c, k) => {
 
 const REVEAL = { x: 16, w: 200, h: 34, pitch: 50, startTop: 136, travel: 130, rise: 8, fadeDist: 18 }
 const REVEAL_LINE = { y: 128, on: 6, off: 4 }
-/** Slots over which the thumb travels (spec §8.3: s4-25); the hold then shows every section until the exit scrolls back. */
+/** Slots over which the thumb travels (first enter slot to 25); the hold then shows every section until the exit scrolls back. */
 const REVEAL_SCROLL = { from: PHASES.enter[0], to: 25 }
 const REVEAL_LABEL = { x: 16, y: 140, s: 'Reveal' }
 const REVEAL_NAMES = ['A', 'B', 'C']

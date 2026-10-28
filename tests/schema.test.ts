@@ -1,5 +1,6 @@
 import { test, expect } from 'claude-code/testing'
-import { inferLang, UI_PICK_SCHEMA, validatePick } from '../hooks/schema'
+import { UI_PICK_SCHEMA, validatePick } from '../hooks/schema'
+import { inferLang } from '../hooks/state'
 import { BAKERY, call, ui } from './kit'
 
 const denyOf = (input: unknown): string | undefined => {

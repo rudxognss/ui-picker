@@ -1,68 +1,86 @@
 # ui-picker
 
-Claude Code plugin. Before it builds any UI, it names every area with one of 25 UI terms, asks you only where two patterns genuinely fit, and shows each candidate as an animated preview in a side pane. You press a digit, edit a number if you like, press Enter. The model builds from a one-screen spec you approved.
+A Claude Code plugin that asks before it builds UI. It names every area of your request with one of 25 UI terms, shows animated previews of the patterns that fit, asks only where the choice changes structure, lets you edit the numbers, and hands the model a one-screen spec you approved.
 
-Any language. Ask in Korean, the pane is Korean. Ask in Japanese, the pane is Japanese: English and Korean text is built in, every other language is supplied by the model in the same call, with English as the fallback for anything missing.
+Works in any language: ask in English, Korean, Japanese or anything else and the pane answers in that language.
 
-![25 UI patterns, each as an animated preview](docs/previews.gif)
+![Question 1 of 1: three animated candidates for the menu section](docs/ask.png)
 
 ## Why
 
-- Vibe coders describe UI in words like "the thing that slides out from the side". The model guesses. ui-picker maps that to **Drawer**, with its default behavior, keyboard rules and mobile fallback, and shows you what it means before writing code.
-- It asks only when the choice changes structure (Card Layout vs Bento Grid vs Carousel). Conventional areas (top navigation, loading state) are decided for you and listed, not asked.
-- Every decision becomes one line the model cannot reinterpret: `- 빵 메뉴: Card Layout (your pick) · cols 4 · gap 16px`.
-- The pane speaks whatever language you asked in. Term names are localized too (드로어, ドロワー, 抽屉); the build message keeps the English term so the code is the same everywhere.
+- You say "make the menu section look nice". Without ui-picker the model picks something. With it, you see Card Layout, Bento Grid, Tabs and Carousel moving side by side and press one key.
+- It asks only when two or more patterns genuinely fit. Top navigation, hero, loading states and the like are decided for you and listed, not asked.
+- Every row carries its default behavior, keyboard rules and mobile fallback, so the build is consistent without you spelling it out.
+- The approved plan reaches the model as plain lines it cannot reinterpret: `- Menu section: Bento Grid (your pick) · cols 3`.
 
 ## Install
 
-Inside Claude Code (2.1.303 or later, terminal):
+Inside Claude Code (2.1.303 or later, in a terminal):
 
 ```
 /plugin install ui-picker --marketplace rudxognss/ui-picker
 ```
 
-Confirm with `y`, then Enter. Shell form: `claude plugin install ui-picker --marketplace rudxognss/ui-picker`. No restart needed.
+Pick a scope, press Enter. No restart.
 
-## Try it
+![Install dialog inside Claude Code](docs/install.png)
 
-```
-빵집 사이트 하나 만들어보자
-포트폴리오 사이트도 하나 만들어줘. 프로젝트 목록 부분은 멋지게.
-Build a settings page with some kind of popup for delete confirmation
-```
+Shell form: `claude plugin install ui-picker --marketplace rudxognss/ui-picker`.
 
-What happens, from a real session:
+## Use
+
+Ask for UI the way you normally would:
 
 ```
-❯ 포트폴리오 사이트도 하나 만들어줘. 프로젝트 목록 부분은 멋지게.
+Build a bakery website. Make the menu section look nice.
+```
 
-⏺ ui-picker - ui_pick (MCP)(title: "포트폴리오 사이트", ui: {
-    "상단 내비게이션": "sticky-header",
-    "자기소개 첫 화면": "hero-section",
-    "프로젝트 목록": ["bento-grid", "card-layout", "carousel"],   ← asked
-    "프로젝트 카드": "hover-effect",
-    "소개 / 경력": "split-layout",
-    "섹션 등장 효과": "scroll-reveal",
-    "전체 레이아웃": "responsive-layout" })
+The model plans the page as areas and terms, then opens the pane:
+
+```
+⏺ ui-picker - ui_pick (MCP)(title: "Bakery website", lang: "en", ui: {
+    "Top navigation": "sticky-header",
+    "Hero": "hero-section",
+    "Menu section": ["card-layout", "bento-grid", "tabs", "carousel"],   ← asked
+    "Menu items": "hover-effect",
+    "Page layout": "responsive-layout" })
   ⎿  { "review": true, "questions": 1 }
 
-⏺ 오른쪽 패널을 확인하세요.
+⏺ Check the right pane.
 ```
 
-The pane shows question 1/1 with three animated previews over hotkeys `1` `2` `3`, then a review board of all seven rows (thumbnail, pattern, who decided it, editable numbers). Enter sends:
+Press `2` for Bento Grid. The review board lists all five rows with a thumbnail, the pattern, who decided it, and the numbers. `3` opens a row; each number is a select, plus a note field.
+
+![Review board with row 3 open: columns select, feature tile size, gap, note](docs/edit.png)
+
+Enter on `Build` sends the plan to the model as a user message:
 
 ```
 ui-picker: build
-- 상단 내비게이션: Sticky Header
-- 자기소개 첫 화면: Hero Section
-- 프로젝트 목록: Card Layout (네 선택)
-- 프로젝트 카드: Hover Effect
-- 소개 / 경력: Split Layout
-- 섹션 등장 효과: Scroll Reveal
-- 전체 레이아웃: Responsive Layout
+- Top navigation: Sticky Header
+- Hero: Hero Section
+- Menu section: Bento Grid (your pick) · cols 3
+- Menu items: Hover Effect
+- Page layout: Responsive Layout
 ```
 
-and the model builds exactly that. `/ui-picker` reopens the board afterwards; edit a row and Enter sends only the changed lines as `ui-picker: change`.
+The model builds exactly that, and reports row by row.
+
+![The model's build report, one line per plan row](docs/build.png)
+
+Afterwards `/ui-picker` reopens the board. Change a number or swap a pattern and Enter sends only the changed rows as `ui-picker: change`.
+
+### Keys
+
+| key | while asking | on the review board |
+|---|---|---|
+| `1`-`4` | pick that candidate | open or close row 1-9 |
+| Enter | | `Build` (or `Send changes`); inside a row: confirm the select |
+| `0` | | `Build` |
+| `x` / `r` | | swap the pattern / reset the row |
+| Esc | apply the recommended answers to the rest | keyboard back to the prompt; the pane stays |
+
+Typing a digit into the prompt while a question is open counts as that pick. Typing anything else leaves the plan in the pane and lets the model answer you or re-plan.
 
 ## The 25 terms
 
@@ -79,42 +97,50 @@ and the model builds exactly that. `/ui-picker` reopens the board afterwards; ed
 | | Carousel | |
 | | Skeleton | |
 
-Each term card ([skills/ui-vocab/terms.md](skills/ui-vocab/terms.md)) carries: plain-language aliases in both languages ("옆에서 쓱 나오는", "slides out from the side"), when it fits, default behavior + accessibility + responsive rules the build must follow, the numbers you can edit in the pane, what to avoid, and the neighbor term it is confused with.
+![25 animated previews](docs/previews.gif)
+
+Each term card in [skills/ui-vocab/terms.md](skills/ui-vocab/terms.md) holds plain-language aliases ("slides out from the side" is a Drawer), when it fits, the default behavior plus accessibility and responsive rules the build follows, the numbers you can edit, what to avoid, and the neighbor it is confused with.
+
+## Languages
+
+- English and Korean pane text is built in.
+- Any other language: the model sends the pane text in that language with the same call. Term names are localized too (Drawer becomes ドロワー or 抽屉). Anything missing shows in English.
+- The build message keeps English term names and keys in every language, so the generated code is the same everywhere.
 
 ## How it works
 
-1. **Plan.** A UI request activates the `ui-vocab` skill. The model lists every area in page order as `area -> term id`. Stated or conventional areas get one id; an area where 2-4 patterns fit gets an array, recommended first (max 3 questions).
-2. **Pick.** One `ui_pick` call. The pane asks each question with every candidate animating at once; a digit picks. Esc applies the recommendations.
-3. **Review.** Every row shows its thumbnail, term, source tag (`model`, `your pick`, `recommended`, `changed`) and its numbers as selects. `1`-`9` opens a row, `x` swaps the pattern, `r` resets.
-4. **Build.** Enter sends the plan as a user message. The pane closes; the model builds. Terms are final, numbers override defaults, a quoted note is your instruction.
-5. **Change.** `/ui-picker` reopens the board. Edited rows go out as `ui-picker: change`.
+1. **Plan.** A UI request activates the `ui-vocab` skill. The model lists every area in page order as `area -> term id`; an area where 2-4 patterns fit becomes a question (max 3).
+2. **Pick.** One `ui_pick` call opens the pane. Every candidate animates at once; a digit picks; Esc applies the recommendations.
+3. **Review.** Rows show thumbnail, term, source tag (`model`, `your pick`, `recommended`, `changed`) and editable numbers.
+4. **Build.** Enter sends the plan as a user message and closes the pane. Terms are final; listed numbers override the defaults; a note is your instruction.
+5. **Change.** `/ui-picker` reopens the board; edited rows go out as `ui-picker: change`.
 
-Full protocol, keys, message formats, preview internals and the live checklist: [docs/reference.md](docs/reference.md).
+Protocol details, message formats, preview internals and the live checklist: [docs/reference.md](docs/reference.md).
 
 ## Where it works
 
-| Surface | Pane + questions | Skill only (defaults + table in chat) |
+| Surface | Pane with previews | Skill only (plan as a table in chat) |
 |---|---|---|
-| Claude Code CLI in a terminal, ≥144 columns | yes | |
-| Narrower terminal | run `/ui-picker` once to place the pane | |
+| Claude Code CLI in a terminal, 144 columns or wider | yes | |
+| Narrower terminal | after `/ui-picker` once | |
 | Claude Code Desktop, VS Code panel, `claude -p`, SDK | | yes |
 
-Previews render as PNG frames in kitty-graphics terminals (Ghostty, kitty, WezTerm, Orca) and as colored cell art everywhere else. Tested in Orca 1.4 on macOS.
+Previews are PNG frames in kitty-graphics terminals (Ghostty, kitty, WezTerm, Orca) and colored cell art elsewhere. Screenshots above: Orca 1.4 on macOS.
 
 ## Limitations
 
 - Early-access mod API (`hooks.json` modules); may change between Claude Code releases.
 - One `ui_pick` per request, 1-9 areas, max 3 questions, 2-4 candidates each.
-- Languages other than English and Korean cost extra tokens per call (the model sends the pane text), and their quality is the model's translation.
-- Editable numbers are the fixed `params` of each term card; free text goes in the note.
+- Editable numbers are the fixed steps of each term card; free text goes in the note.
+- Languages other than English and Korean cost extra tokens per call for the pane text.
 - Sends nothing anywhere. State lives in the plugin's session store.
 
 ## Develop
 
 ```sh
 command claude plugin validate .
-command claude plugin test .          # 121 tests
-bun scripts/render-previews.ts --check   # PNG frames up to date
+command claude plugin test .              # 125 tests
+bun scripts/render-previews.ts --check    # PNG frames up to date
 ```
 
 ## License

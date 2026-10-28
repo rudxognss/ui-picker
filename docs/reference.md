@@ -39,14 +39,14 @@ ui-picker: build
 - <area>: <En term>[ (tag)][ · <key> <value><unit>]…[ · "<note>"]
 ```
 
-Tags: `(your pick)` / `(네 선택)` you answered; `(recommended)` / `(추천 적용)` Esc or a typed prompt resolved it; `(changed)` / `(변경)` a model-decided row you edited. Example (bakery, after picking Card Layout, cols 4, gap 16, lift 4 and a note):
+Tags: `(your pick)` / `(네 선택)` you answered; `(recommended)` / `(추천 적용)` Esc or a typed prompt resolved it; `(changed)` / `(변경)` a model-decided row you edited. Example (bakery, after picking Card Layout, cols 4, gap 16, lift 4 and a note; in `ko` the tags read `(네 선택)`, `(추천 적용)`, `(변경)`):
 
 ```
 ui-picker: build
-- 상단 내비게이션: Sticky Header
-- 상단 영역: Hero Section
-- 빵 메뉴: Card Layout (네 선택) · cols 4 · gap 16px
-- 메뉴 카드: Hover Effect (변경) · lift 4px · "그림자도 살짝"
+- top navigation: Sticky Header
+- top section: Hero Section
+- bread menu: Card Layout (your pick) · cols 4 · gap 16px
+- menu cards: Hover Effect (changed) · lift 4px · "a soft shadow too"
 ```
 
 Change (from done): header `ui-picker: change`, then only the rows that differ from the last message.
@@ -90,21 +90,20 @@ Context block (beside a prompt typed while the plan is pending): header `ui-pick
   `ui-picker: pane not placed (<reason>). Widen the terminal to ≥144 columns, or run /ui-picker and leave the pane open, then repeat your request.`
 - If the build or change message cannot enter (a settings hook blocks it, a Stop stands), the text is put in the prompt box with a toast; press Enter to send it.
 
-## Manual checks
+## Live checklist
 
-v2 live checklist (not yet run; Claude Code ≥2.1.303, Orca 1.4 or another kitty-graphics terminal at ≥144 columns):
+Run in a clean `CLAUDE_CONFIG_DIR` with the plugin installed from the marketplace, Claude Code 2.1.303 or later, a kitty-graphics terminal at 144 columns or wider. Last full pass: 2026-10-28, Orca 1.4, Claude Code 2.1.312.
 
-- [ ] `빵집 사이트 하나 만들어보자` → the model calls `ui_pick` once with the bakery payload (`{"title":"빵집 사이트","ui":{...4 areas, 빵 메뉴 asked...}}`, 191 B) and ends its turn with `오른쪽 패널을 확인하세요.`; the pane asks `질문 1/1` with three animated cards.
-- [ ] Press `1` → review shows `빵집 사이트 · 결정 4`, four rows with thumbnails, `[네 선택]` on 빵 메뉴, `빌드` focused.
-- [ ] Press `3`, change 열 to 4 via the Select, Enter on `빌드` → the user message is exactly `ui-picker: build` + 4 lines with `- 빵 메뉴: Card Layout (네 선택) · cols 4`; the pane reads `이 결정으로 만드는 중… (수정은 이후 반영)`, no Selects.
-- [ ] The model builds in that turn without calling `ui_pick` again; when its turn ends the pane reads `완료 · 1-4: 수정 · Enter: 변경 보내기`.
-- [ ] In done: open a row, change a number, Enter on `변경 보내기` → `ui-picker: change` with only that row.
-- [ ] Esc path: a 2-question set, answer one, press Esc → the other row is `[추천 적용]`, the pane stays in review; Esc again only returns the keyboard.
-- [ ] Question mid-plan: with question 1/2 in the pane type `패널 어떻게 다시 열어?` → the model answers, builds nothing; the pane still shows question 1/2.
-- [ ] Change mid-plan: type `빵 메뉴는 카드로, 푸터도` → the model calls `ui_pick` again (accepted), the pane shows the new plan, Enter builds it.
-- [ ] Close the pane by hand, then `/ui-picker` → the pending question or the plan is back (through the store mirror if the session state was lost).
-- [ ] `/clear` with a plan pending → the next UI request plans afresh (no `still pending` deny).
-- [ ] Zero-question payload → the pane opens at review; Enter sends a build message with no tags.
-- [ ] Terminal at 120 columns, no `/ui-picker` run → `ui_pick` is denied with the `pane not placed` remedy line; after `/ui-picker` once (pane left open) the next request places the pane.
-- [ ] Every candidate of a question animates at once; a digit picks directly; arrows scroll when the stack is taller than the pane.
-- [ ] Registered tool call raises no permission prompt in `default` permission mode.
+- [x] `Build a bakery website. Make the menu section look nice.` → one `ui_pick` call with `lang: "en"`, the menu section asked with 4 candidates, the turn ends with `Check the right pane.`; the pane shows `Question 1 of 1` and every candidate animating at once.
+- [x] A zero-question plan opens at review and Enter sends a build message with no tags.
+- [x] Digit `2` picks; the review board tags the row `[your pick]`; Enter on `Build` sends `ui-picker: build` with one line per row and the pick's non-default numbers.
+- [x] The model builds in that turn without calling `ui_pick` again; the pane closes; `/ui-picker` reopens it as `Built`.
+- [x] Open a row, change a number with the Select, Enter → the row reads `[changed]` and focus returns to the row button.
+- [x] A Korean request (`빵집 사이트 하나 만들어보자`) gets a Korean pane with `lang` inferred from Hangul; a Japanese request gets a Japanese pane from the model's `labels`, tags included (`[あなたの選択]`).
+- [x] `claude -p` (no pane): the skill prints the plan as a table and builds with the recommendations.
+- [ ] Esc path: a 2-question set, answer one, press Esc → the other row is `[recommended]`, the pane stays in review.
+- [ ] Question mid-plan: with a question open, ask `how do I reopen the pane?` → the model answers, builds nothing, the question stays.
+- [ ] Change mid-plan: type a change instead of pressing Enter → the model calls `ui_pick` again (accepted), the pane shows the new plan.
+- [ ] Close the pane by hand, then `/ui-picker` → the pending question or the plan is back (store mirror).
+- [ ] `/clear` with a plan pending → the next UI request plans afresh.
+- [ ] Terminal under 144 columns without `/ui-picker` → `ui_pick` is denied with the `pane not placed` remedy; after `/ui-picker` once the next request places the pane.

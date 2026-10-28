@@ -7,7 +7,7 @@ import { PixelCanvas } from './pixel'
 /** Glyph by quadrant mask: tl = 8, tr = 4, bl = 2, br = 1. */
 export const QUADRANTS = [' ', '▗', '▖', '▄', '▝', '▐', '▞', '▟', '▘', '▚', '▌', '▙', '▀', '▜', '▛', '█'] as const
 /** Labels overlay as glyph cells only from this width; narrower boxes keep the pure cell art. */
-export const LABEL_MIN_W = 20
+const LABEL_MIN_W = 20
 const BYTES_PER_CELL = 12
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
