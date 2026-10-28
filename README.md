@@ -1,10 +1,14 @@
 # ui-picker
 
-A Claude Code plugin that asks before it builds UI. It names every area of your request with one of 25 UI terms, shows animated previews of the patterns that fit, asks only where the choice changes structure, lets you edit the numbers, and hands the model a one-screen spec you approved.
+**Claude Code asks which UI pattern you mean before it builds.** Every area of your request gets one of 25 UI terms; where two or more patterns fit, you see them animating side by side and press one key; numbers are editable; the model builds from the plan you approved.
 
-Works in any language: ask in English, Korean, Japanese or anything else and the pane answers in that language.
+```
+/plugin install ui-picker --marketplace rudxognss/ui-picker
+```
 
-![Question 1 of 1: three animated candidates for the menu section](docs/ask.png)
+Requires Claude Code 2.1.303 or later in a terminal. MIT. Works in any language: ask in Korean, the pane is Korean. [한국어 안내](README.ko.md)
+
+![The pane asking one question: candidates animate side by side, a digit picks](docs/demo.gif)
 
 ## Why
 
@@ -15,21 +19,13 @@ Works in any language: ask in English, Korean, Japanese or anything else and the
 
 ## Install
 
-Inside Claude Code (2.1.303 or later, in a terminal):
-
-```
-/plugin install ui-picker --marketplace rudxognss/ui-picker
-```
-
-Pick a scope, press Enter. No restart.
+Inside Claude Code, paste the command above, pick a scope, press Enter. It takes effect immediately, no need to restart Claude Code.
 
 ![Install dialog inside Claude Code](docs/install.png)
 
 Shell form: `claude plugin install ui-picker --marketplace rudxognss/ui-picker`.
 
-Skill only, for any agent that reads `SKILL.md` (Cursor, Codex, Claude Code without the pane): `npx skills add rudxognss/ui-picker`. You get the 25 term cards and the ask-only-when-ambiguous planning; the plan prints as a table in chat instead of the pane.
-
-한국어 안내: [README.ko.md](README.ko.md)
+Without Claude Code, or without the pane: `npx skills add rudxognss/ui-picker` installs just the `ui-vocab` skill for any agent that reads `SKILL.md` (Cursor, Codex, Claude Code Desktop). You get the 25 term cards and the ask-only-when-ambiguous planning, with the plan printed as a table in chat instead of the pane.
 
 ## Use
 
@@ -40,6 +36,8 @@ Build a bakery website. Make the menu section look nice.
 ```
 
 The model plans the page as areas and terms, then opens the pane:
+
+![Question 1 of 1 in a wide terminal: the pane beside the chat](docs/ask.png)
 
 ```
 ⏺ ui-picker - ui_pick (MCP)(title: "Bakery website", lang: "en", ui: {
@@ -137,13 +135,13 @@ Protocol details, message formats, preview internals and the live checklist: [do
 
 ## Where it works
 
-| Surface | Pane with previews | Skill only (plan as a table in chat) |
+| Surface | Pane with previews | Skill only (plan printed as a table in chat) |
 |---|---|---|
 | Claude Code CLI in a terminal, 144 columns or wider | yes | |
 | Narrower terminal | previews open in the browser, question in chat, digits answer; `/ui-picker` opens the pane | |
 | Claude Code Desktop, VS Code panel, `claude -p`, SDK | | yes |
 
-Previews are PNG frames in kitty-graphics terminals (Ghostty, kitty, WezTerm, Orca) and colored cell art elsewhere. Screenshots above: Orca 1.4 on macOS.
+Previews are pixel images in terminals that can draw them (Ghostty, kitty, WezTerm, Orca) and colored block art elsewhere. Screenshots above: Orca 1.4 on macOS.
 
 ## Limitations
 

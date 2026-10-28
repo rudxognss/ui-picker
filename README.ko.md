@@ -1,10 +1,14 @@
 # ui-picker
 
-UI를 만들기 전에 먼저 묻는 Claude Code 플러그인. 요청의 모든 영역을 25개 UI 용어 중 하나로 이름 붙이고, 어울리는 패턴 후보를 애니메이션 미리보기로 보여주고, 구조가 달라지는 곳에서만 질문하고, 숫자를 고치게 한 뒤, 네가 승인한 한 화면짜리 명세를 모델에게 넘긴다.
+**Claude Code가 UI를 만들기 전에 어떤 패턴을 말하는 건지 먼저 묻는다.** 요청의 모든 영역이 25개 UI 용어 중 하나로 이름 붙고, 패턴이 둘 이상 어울리는 곳에서는 후보가 나란히 움직이는 걸 보고 키 하나로 고르고, 숫자를 고치고, 승인한 계획대로 모델이 만든다.
 
-질문한 언어로 답한다. 한국어로 물으면 패널도 한국어.
+```
+/plugin install ui-picker --marketplace rudxognss/ui-picker
+```
 
-![질문 1/1: 메뉴 영역 후보 3개가 움직이는 미리보기](docs/ask.png)
+Claude Code 2.1.303 이상, 터미널. MIT. 질문한 언어로 답한다: 한국어로 물으면 패널도 한국어. [English README](README.md)
+
+![패널이 질문 하나를 묻는 모습: 후보들이 나란히 움직이고 숫자로 고른다](docs/demo.gif)
 
 ## 왜
 
@@ -15,19 +19,13 @@ UI를 만들기 전에 먼저 묻는 Claude Code 플러그인. 요청의 모든 
 
 ## 설치
 
-Claude Code 안에서 (2.1.303 이상, 터미널):
-
-```
-/plugin install ui-picker --marketplace rudxognss/ui-picker
-```
-
-범위 고르고 Enter. 재시작 없음.
+Claude Code 안에서 위 명령을 붙이고, 범위를 고르고, Enter. 바로 적용되고 Claude Code를 재시작할 필요 없다.
 
 ![Claude Code 안의 설치 다이얼로그](docs/install.png)
 
 셸: `claude plugin install ui-picker --marketplace rudxognss/ui-picker`
 
-스킬만 쓰기 (`SKILL.md`를 읽는 어떤 에이전트든: Cursor, Codex, 패널 없는 Claude Code): `npx skills add rudxognss/ui-picker`. 25개 용어 카드와 "애매할 때만 묻는" 계획은 그대로, 계획은 패널 대신 채팅의 표로 나온다.
+Claude Code가 아니거나 패널 없이 쓰려면: `npx skills add rudxognss/ui-picker`가 `ui-vocab` 스킬만 설치한다(`SKILL.md`를 읽는 어떤 에이전트든: Cursor, Codex, Claude Code Desktop). 25개 용어 카드와 "애매할 때만 묻는" 계획은 그대로, 계획은 패널 대신 채팅의 표로 나온다.
 
 ## 사용
 
@@ -38,6 +36,8 @@ Claude Code 안에서 (2.1.303 이상, 터미널):
 ```
 
 모델이 페이지를 영역과 용어로 계획하고 패널을 연다:
+
+![넓은 터미널에서의 질문 1/1: 채팅 옆 패널](docs/ask.png)
 
 ```
 ⏺ ui-picker - ui_pick (MCP)(title: "빵집 사이트", ui: {
@@ -141,7 +141,7 @@ ui-picker: change
 | 더 좁은 터미널 | 미리보기는 브라우저로, 질문은 채팅으로, 숫자로 답; `/ui-picker`로 패널 열기 | |
 | Claude Code Desktop, VS Code 패널, `claude -p`, SDK | | O |
 
-미리보기는 kitty 그래픽 터미널(Ghostty, kitty, WezTerm, Orca)에서 PNG 프레임, 그 외에서는 컬러 셀 아트. 위 스크린샷은 macOS의 Orca 1.4.
+미리보기는 이미지를 그릴 수 있는 터미널(Ghostty, kitty, WezTerm, Orca)에서 픽셀 이미지, 그 외에서는 컬러 블록 아트. 위 스크린샷은 macOS의 Orca 1.4.
 
 ## 한계
 
