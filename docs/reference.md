@@ -51,6 +51,8 @@ ui-picker: build
 
 Change (from done): header `ui-picker: change`, then only the rows that differ from the last message.
 
+Review overlay (`skills/ui-vocab/review.js`, copied next to an HTML draft as `ui-picker-review.js`): the person clicks an element, writes a note, and copies `ui-picker: change` with note-only lines `- <area>: "<note>"[ · <element>]`. `<area>` is the clicked element's nearest `data-area`, else the nearest heading text, else `tag#id`/`tag.class`. A note-only line keeps the row's term and params. Notes persist in `localStorage` per path; the pane is not involved.
+
 Context block (beside a prompt typed while the plan is pending): header `ui-picker: a plan is pending in the pane; the person has not confirmed it:` / `ui-picker: 패널에 확인 대기 중인 계획이 있습니다 (아직 확정 아님):`, the same lines (an unanswered question shows its recommended id, untagged), then one line telling the model to answer a question or re-plan a change, never build.
 
 ### Esc rule
@@ -73,7 +75,7 @@ Context block (beside a prompt typed while the plan is pending): header `ui-pick
 - `prompt.submit` (composer and bridge prompts; not commands, meta or plugin prompts):
   - adds one model-only context line (`ui-picker: UI request. Apply ui-vocab: call ui_pick once ...`) when the prompt contains a UI or product noun (page, screen, button, menu, settings, card, layout, landing, dashboard, modal, drawer, navbar, sidebar, hero, UI, UX, app, website, site, kiosk, frontend; 화면, 페이지, 버튼, 메뉴, 설정, 카드, 레이아웃, 랜딩, 대시보드, 모달, 드로어, 사이드바, 히어로, 앱, 웹사이트, 사이트, 키오스크, 프론트) and does not talk about the mod itself (META guard: `ui-picker`, `ui_pick`, `ui-vocab`, `mcp__`, a quoted tool result);
   - while a plan is in the pane: a bare digit is the pick; any other prompt carries the pending plan as a context block (`ui-picker: a plan is pending ...`), marks the plan `prompted` and adds nothing else; the pane stays.
-- `tool.call` `mcp__ui-picker__ui_pick`: validates, opens the pane, returns `{"review":true,"questions":n}`; denies with a field line, `still pending` / `under review` (a pending plan nobody typed over since), `pane not placed` or the disabled line. A pending plan the person typed over is replaced.
+- `tool.call` `mcp__ui-picker__ui_pick`: validates, opens the pane, returns `{"review":true,"questions":n}` (plus `"pane": "not placed (...)"` when the host refused an unasked open below its width floor: the plan is kept, the model runs `skills/ui-vocab/preview.sh` which opens `preview.html#q=...` in the browser for the animated candidates, typed digits answer, `/ui-picker` places the pane); denies with a field line, `still pending` / `under review` (a pending plan nobody typed over since), `pane not placed` or the disabled line. A pending plan the person typed over is replaced.
 - `ui.close` by you while asking: refused; the plan moves to review. The mod closes the pane itself once a plan or change message went out.
 - `turn.start` of the main loop while building stamps the build turn; that turn's `turn.complete` moves building → done (the turn that called `ui_pick` may still be running when Enter is pressed and never counts). No status is sent on the wire.
 - `session.end` with reason `clear`: the pane state is reset and the pane closed, so the fresh conversation can plan again.
@@ -86,8 +88,7 @@ Context block (beside a prompt typed while the plan is pending): header `ui-pick
 - Language: `lang` is any BCP-47 code. `en` and `ko` have built-in pane text; any other code reads the call's `labels` (`ui` strings by key, `terms` by id: name/when/caption/params) and falls back to English per string. The build message keeps English term names and keys in every language.
 - Editable numbers are the fixed `params` list of each term card (every value is one of the card's steps); free text goes in the note.
 - Pane, tool and `/ui-picker`: interactive terminal only. The `ui-vocab` skill applies on every surface (defaults + table, no questions).
-- No fallback when the pane cannot be placed. `ui_pick` returns one remedy line:
-  `ui-picker: pane not placed (<reason>). Widen the terminal to ≥144 columns, or run /ui-picker and leave the pane open, then repeat your request.`
+- When the host refuses to place the pane (an unasked open in a terminal narrower than 144 columns), `ui_pick` still keeps the plan and tells the model to ask in chat; typed digits answer, and `/ui-picker` (a user-asked open) places the pane at any width.
 - If the build or change message cannot enter (a settings hook blocks it, a Stop stands), the text is put in the prompt box with a toast; press Enter to send it.
 
 ## Live checklist
@@ -106,4 +107,4 @@ Run in a clean `CLAUDE_CONFIG_DIR` with the plugin installed from the marketplac
 - [ ] Change mid-plan: type a change instead of pressing Enter → the model calls `ui_pick` again (accepted), the pane shows the new plan.
 - [ ] Close the pane by hand, then `/ui-picker` → the pending question or the plan is back (store mirror).
 - [ ] `/clear` with a plan pending → the next UI request plans afresh.
-- [ ] Terminal under 144 columns without `/ui-picker` → `ui_pick` is denied with the `pane not placed` remedy; after `/ui-picker` once the next request places the pane.
+- [ ] Terminal under 144 columns without `/ui-picker` → the model opens `preview.html` in the browser and lists the question in chat; a typed digit answers; `/ui-picker` shows the pane with the pending plan.

@@ -258,9 +258,9 @@ export const register: Register = on => {
     await $.ui.open(openOf(s.mode))
     // A pane re-shown from behind another tab gets no fresh ui.render; re-arm the loop here (idempotent).
     if (s.plan && targets.length > 0) animate($)
-    if (s.mode === 'asking' || s.mode === 'swapping') return { text: 'ui-picker: pending question opened.' }
-    if (s.mode === 'review') return { text: 'ui-picker: plan opened for review.' }
-    if (s.plan) return { text: 'ui-picker: plan opened.' }
+    if (s.mode === 'asking' || s.mode === 'swapping') return { text: 'pending question opened.' }
+    if (s.mode === 'review') return { text: 'plan opened for review.' }
+    if (s.plan) return { text: 'plan opened.' }
     return { text: IDLE_LINE }
   })
 
@@ -273,8 +273,8 @@ export const register: Register = on => {
     const n = questions(v.value)
     const mode: Mode = n > 0 ? 'asking' : 'review'
     const plan = n > 0 ? v.value : settle(v.value)
+    // Not placed (unasked open below the host's width floor): the plan is kept anyway; typed digits answer and /ui-picker (asked) places it.
     const opened = await $.ui.open(openOf(mode))
-    if (!opened.isPlaced) return { deny: notPlaced(opened.reason) }
     // update() reads, applies and writes with ifVersion, so of two calls in flight only one takes the pane.
     const found: { busy?: PaneState } = {}
     await put($, s => {
@@ -286,9 +286,9 @@ export const register: Register = on => {
     })
     if (found.busy?.plan) return { deny: stillPending(found.busy.mode, answered(found.busy.plan), questions(found.busy.plan)) }
     stopAnimation()
-    animate($)
+    if (opened.isPlaced) animate($)
     // A registered tool's result must be a string or content blocks (engine output shape); the model reads the JSON.
-    return { result: JSON.stringify({ review: true, questions: n }) }
+    return { result: JSON.stringify(opened.isPlaced ? { review: true, questions: n } : { review: true, questions: n, pane: notPlaced(opened.reason) }) }
   })
 
   on('ui.render', { component: 'Pane', requestId: 'ui-picker' }, async ($, e) => {

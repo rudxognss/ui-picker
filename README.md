@@ -27,9 +27,13 @@ Pick a scope, press Enter. No restart.
 
 Shell form: `claude plugin install ui-picker --marketplace rudxognss/ui-picker`.
 
+Skill only, for any agent that reads `SKILL.md` (Cursor, Codex, Claude Code without the pane): `npx skills add rudxognss/ui-picker`. You get the 25 term cards and the ask-only-when-ambiguous planning; the plan prints as a table in chat instead of the pane.
+
+한국어 안내: [README.ko.md](README.ko.md)
+
 ## Use
 
-Ask for UI the way you normally would:
+Ask for UI the way you normally would. In a terminal narrower than 144 columns the pane cannot open on its own: the animated previews open in your browser instead, the question comes in chat, a typed digit answers it, and `/ui-picker` opens the pane at any width.
 
 ```
 Build a bakery website. Make the menu section look nice.
@@ -69,6 +73,20 @@ The model builds exactly that, and reports row by row.
 ![The model's build report, one line per plan row](docs/build.png)
 
 Afterwards `/ui-picker` reopens the board. Change a number or swap a pattern and Enter sends only the changed rows as `ui-picker: change`.
+
+### Review the draft in the browser
+
+An HTML draft comes with a review overlay. Open it, click any part of the page, write what should change, press **Copy for Claude** and paste into Claude Code. Each plan row's root element is tagged with its area name, so the note lands on the right row; clicks inside a row also name the element.
+
+![Review overlay: two notes and the message ready to paste](docs/review-overlay.png)
+
+```
+ui-picker: change
+- Menu section: "make the feature tile show a photo" · h2 "Our Menu"
+- footer.site-footer: "add Instagram link"
+```
+
+The overlay is one script file (`ui-picker-review.js`) next to the HTML, no dependencies; notes survive a reload. Delete the script tag when the draft is final.
 
 ### Keys
 
@@ -113,7 +131,7 @@ Each term card in [skills/ui-vocab/terms.md](skills/ui-vocab/terms.md) holds pla
 2. **Pick.** One `ui_pick` call opens the pane. Every candidate animates at once; a digit picks; Esc applies the recommendations.
 3. **Review.** Rows show thumbnail, term, source tag (`model`, `your pick`, `recommended`, `changed`) and editable numbers.
 4. **Build.** Enter sends the plan as a user message and closes the pane. Terms are final; listed numbers override the defaults; a note is your instruction.
-5. **Change.** `/ui-picker` reopens the board; edited rows go out as `ui-picker: change`.
+5. **Change.** `/ui-picker` reopens the board; edited rows go out as `ui-picker: change`. In the browser, the review overlay turns clicks and notes into the same message.
 
 Protocol details, message formats, preview internals and the live checklist: [docs/reference.md](docs/reference.md).
 
@@ -122,7 +140,7 @@ Protocol details, message formats, preview internals and the live checklist: [do
 | Surface | Pane with previews | Skill only (plan as a table in chat) |
 |---|---|---|
 | Claude Code CLI in a terminal, 144 columns or wider | yes | |
-| Narrower terminal | after `/ui-picker` once | |
+| Narrower terminal | previews open in the browser, question in chat, digits answer; `/ui-picker` opens the pane | |
 | Claude Code Desktop, VS Code panel, `claude -p`, SDK | | yes |
 
 Previews are PNG frames in kitty-graphics terminals (Ghostty, kitty, WezTerm, Orca) and colored cell art elsewhere. Screenshots above: Orca 1.4 on macOS.
@@ -135,12 +153,17 @@ Previews are PNG frames in kitty-graphics terminals (Ghostty, kitty, WezTerm, Or
 - Languages other than English and Korean cost extra tokens per call for the pane text.
 - Sends nothing anywhere. State lives in the plugin's session store.
 
+## Repository layout
+
+What the plugin runs is `.claude-plugin/`, `hooks/`, `skills/` and `types/`. Everything else is for people working on it: `tests/` (125 checks the plugin runner executes), `scripts/` (regenerates the preview frames), `docs/` (screenshots and the protocol reference), `tsconfig.json`.
+
 ## Develop
 
 ```sh
 command claude plugin validate .
 command claude plugin test .              # 125 tests
 bun scripts/render-previews.ts --check    # PNG frames up to date
+bun scripts/build-preview-html.ts --check # browser preview page up to date
 ```
 
 ## License

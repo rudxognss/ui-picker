@@ -62,7 +62,7 @@ test('animation: /ui-picker re-arms a stopped loop', async ($, on) => {
   await k.clock.advance(TICK * 5)
   expect(k.blits.length).toBe(stopped)
   deny = false
-  expect((await $.command.run(RUN)).text).toBe('ui-picker: pending question opened.')
+  expect((await $.command.run(RUN)).text).toBe('pending question opened.')
   await k.clock.advance(TICK * 3)
   expect(k.blits.length).toBeGreaterThan(stopped)
 })

@@ -26,10 +26,14 @@ export const UI_CONTEXT = 'ui-picker: UI request. Apply ui-vocab: call ui_pick o
 
 export const DISABLED_LINE = 'ui-picker: requires the Claude Code terminal CLI. Disabled for this session.'
 
-export const IDLE_LINE = 'ui-picker: pane open. Repeat your UI request; the plan appears here.'
+/** Command output; the host prefixes it with the plugin name. */
+export const IDLE_LINE = 'pane open. Repeat your UI request; the plan appears here.'
 
+/** Result field when the host refused to place the pane (unasked open in a narrow terminal): the plan is kept, the chat carries the questions. */
 export function notPlaced(reason: string): string {
-  return 'ui-picker: pane not placed (' + reason + '). Widen the terminal to ≥144 columns, or run /ui-picker and leave the pane open, then repeat your request.'
+  return (
+    'not placed (' + reason + "). Show the animated previews in the browser instead: run `sh \"<ui-vocab skill folder>/preview.sh\" '<ids of question 1>;<ids of question 2>' <lang> '<title>'` (ids comma-separated per question, recommended first), then write each question in chat as numbered candidates in the person's language; a typed digit answers; /ui-picker opens the pane. Do not build."
+  )
 }
 
 export function stillPending(mode: Mode, k: number, n: number): string {

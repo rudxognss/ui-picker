@@ -63,7 +63,7 @@ test('a plan in review survives the turn ending and comes back with /ui-picker',
   await ui2.press({ key: 'pick-1' })
   await ui2.press({ key: 'pick-0' })
   await $.turn.complete(TURN)
-  expect(await $.command.run(RUN)).toEqual({ text: 'ui-picker: plan opened for review.' })
+  expect(await $.command.run(RUN)).toEqual({ text: 'plan opened for review.' })
   expect(await ui2.find({ key: 'build' })).toBeDefined()
 })
 
@@ -89,7 +89,7 @@ test('an empty session state comes back from this session\'s mirror; another ses
   k.store['pane'] = { session: 'sess-0', state: { mode: 'asking', plan: plan.value } }
   expect(await $.command.run(RUN)).toEqual({ text: IDLE_LINE })
   k.store['pane'] = { session: 'sess-1', state: { mode: 'asking', plan: plan.value } }
-  expect(await $.command.run(RUN)).toEqual({ text: 'ui-picker: pending question opened.' })
+  expect(await $.command.run(RUN)).toEqual({ text: 'pending question opened.' })
   const ui2 = await $.ui.mount(MOUNT)
   expect(await ui2.find({ text: 'Question 1 of 2' })).toBeDefined()
   // the recovered plan is live: a ui_pick is a re-ask, a typed prompt carries it

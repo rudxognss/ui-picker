@@ -3,7 +3,7 @@ import { test, expect } from 'claude-code/testing'
 import { imageRows } from '../hooks/previews/images'
 import { hasPreview } from '../hooks/previews/index'
 import { IDLE_LINE, notPlaced } from '../hooks/trigger'
-import { bottoms, call, MOUNT, PANE, RUN, SESSION, TWO, ui } from './kit'
+import { bottoms, call, composer, MOUNT, PANE, RUN, SESSION, TWO, ui } from './kit'
 
 const TICK = 100
 /** An ask open takes the keyboard and dialog manners; a review open the keyboard alone; a show open neither. */
@@ -73,11 +73,16 @@ test('a digit picks its option; the next question shows all of its options', asy
   expect(await ui.find({ key: 'build' })).toBeDefined()
 })
 
-test('ui_pick denies with remedy when the pane is not placed, with and without questions', async ($, on) => {
-  bottoms(on, { placed: false, reason: 'below 144 columns (120 now)' })
+test('pane not placed: ui_pick keeps the plan, reports it in the result; a typed digit answers; /ui-picker places it', async ($, on) => {
+  const k = bottoms(on, { placed: false, reason: 'below 144 columns (120 now)' })
   await $.session.start(SESSION)
-  expect((await $.tool.call(TWO) as any).deny).toBe(notPlaced('below 144 columns (120 now)'))
-  expect((await $.tool.call(call({ lang: 'en' }, ui('nav', 'sticky-header'))) as any).deny).toBe(notPlaced('below 144 columns (120 now)'))
+  const r = JSON.parse((await $.tool.call(TWO) as any).result)
+  expect(r).toEqual({ review: true, questions: 2, pane: notPlaced('below 144 columns (120 now)') })
+  expect(k.blits.length).toBe(0)
+  const typed = await $.prompt.submit(composer('2'))
+  expect(typed.drop).toBe('ui-picker: option 2 recorded. Question 2 of 2 is in the pane.')
+  expect((await $.tool.call(call({ lang: 'en' }, ui('nav', 'sticky-header'))) as any).deny).toMatch(/still pending/)
+  expect((await $.command.run(RUN)).text).toBe('pending question opened.')
 })
 
 test('unknown ids are denied at the tool boundary', async ($, on) => {
@@ -155,14 +160,14 @@ test('/ui-picker opens by mode and reports what the pane holds', async ($, on) =
   expect((await $.command.run(RUN)).text).toBe(IDLE_LINE)
   expect(k.opens).toEqual([SHOWS])
   await $.tool.call(TWO)
-  expect((await $.command.run(RUN)).text).toBe('ui-picker: pending question opened.')
+  expect((await $.command.run(RUN)).text).toBe('pending question opened.')
   expect(k.opens).toEqual([SHOWS, ASKS, ASKS])
   const ui = await $.ui.mount(MOUNT)
   await ui.press({ key: 'pick-0' })
   await ui.press({ key: 'pick-0' })
-  expect((await $.command.run(RUN)).text).toBe('ui-picker: plan opened for review.')
+  expect((await $.command.run(RUN)).text).toBe('plan opened for review.')
   expect(k.opens).toEqual([SHOWS, ASKS, ASKS, REVIEWS, REVIEWS])
   await ui.press({ key: 'build' })
-  expect((await $.command.run(RUN)).text).toBe('ui-picker: plan opened.')
+  expect((await $.command.run(RUN)).text).toBe('plan opened.')
   expect(k.opens).toEqual([SHOWS, ASKS, ASKS, REVIEWS, REVIEWS, SHOWS])
 })
