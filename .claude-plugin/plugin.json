@@ -1,0 +1,22 @@
+{
+  "name": "ui-picker",
+  "version": "0.2.0",
+  "description": "Plans the UI of a request as term ids, asks about ambiguous areas in a right-side pane with animated previews, lets the person edit every number on a review board, and returns the plan as one \"ui-picker: build\" message.",
+  "author": {
+    "name": "rudxognss"
+  },
+  "types": "./types/index.d.ts",
+  "icon": "./.claude-plugin/icon.png",
+  "homepage": "https://github.com/rudxognss/ui-picker",
+  "repository": "https://github.com/rudxognss/ui-picker",
+  "license": "MIT",
+  "keywords": [
+    "ui",
+    "design",
+    "vocabulary",
+    "frontend",
+    "korean",
+    "pane",
+    "previews"
+  ]
+}

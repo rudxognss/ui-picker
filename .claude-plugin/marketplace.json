@@ -1,0 +1,13 @@
+{
+  "name": "ui-picker",
+  "owner": {
+    "name": "rudxognss"
+  },
+  "plugins": [
+    {
+      "name": "ui-picker",
+      "source": "./"
+    }
+  ],
+  "description": "ui-picker: name UI areas with 25 terms, ask only where ambiguous, preview candidates in a side pane, build from an approved spec."
+}
