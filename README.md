@@ -147,6 +147,12 @@ Protocol details, message formats, preview internals and the live checklist: [do
 
 Previews are pixel images in terminals that can draw them (Ghostty, kitty, WezTerm, Orca) and colored block art elsewhere. Screenshots above: Orca 1.4 on macOS.
 
+## What it runs and sends
+
+- Runs: the pane renderer and the `ui_pick` tool inside Claude Code; `skills/ui-vocab/preview.sh`, which the model runs only when the pane cannot open, writes a one-line launcher page to your temp directory and opens the default browser on a local file; `review.js`, which the model copies next to an HTML draft and which runs only in your browser.
+- Sends: nothing. No network calls in the plugin, the preview page or the overlay. Notes from the overlay reach Claude Code through your clipboard.
+- Stores: the current plan in the plugin's session state and a mirror in the plugin store; overlay notes in the browser's `localStorage` for that page.
+
 ## Limitations
 
 - Early-access mod API (`hooks.json` modules); may change between Claude Code releases.

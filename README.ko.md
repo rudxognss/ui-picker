@@ -145,6 +145,12 @@ ui-picker: change
 
 미리보기는 이미지를 그릴 수 있는 터미널(Ghostty, kitty, WezTerm, Orca)에서 픽셀 이미지, 그 외에서는 컬러 블록 아트. 위 스크린샷은 macOS의 Orca 1.4.
 
+## 실행하는 것과 보내는 것
+
+- 실행: Claude Code 안의 패널 렌더러와 `ui_pick` 도구; 패널이 못 열릴 때만 모델이 실행하는 `skills/ui-vocab/preview.sh`(임시 폴더에 한 줄짜리 런처 페이지를 쓰고 기본 브라우저로 로컬 파일을 연다); 모델이 HTML 초안 옆에 복사하는 `review.js`(브라우저 안에서만 동작).
+- 전송: 없음. 플러그인·미리보기 페이지·오버레이 모두 네트워크 호출 없음. 오버레이 메모는 클립보드로 Claude Code에 전달.
+- 저장: 현재 계획을 플러그인 세션 상태와 플러그인 스토어 미러에, 오버레이 메모를 그 페이지의 브라우저 `localStorage`에.
+
 ## 한계
 
 - 얼리 액세스 mod API(`hooks.json` modules). Claude Code 릴리스 사이에 바뀔 수 있음.

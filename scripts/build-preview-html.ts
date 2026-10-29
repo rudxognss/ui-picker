@@ -5,7 +5,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { PNG_INDEX, PNG_UNIQUE, SLOTS } from '../hooks/previews/png-frames'
 import { TERMS } from '../hooks/terms'
 
-const OUT = decodeURIComponent(new URL('../skills/ui-vocab/preview.html', import.meta.url).pathname)
+const DIR = decodeURIComponent(new URL('../skills/ui-vocab/', import.meta.url).pathname)
+const OUT = DIR + 'preview.html'
+/** Frames go in two sibling scripts so every file stays under 256 KiB. */
+const FRAME_FILES = ['preview-frames-a.js', 'preview-frames-b.js']
 
 const terms = Object.fromEntries(
   Object.entries(TERMS).map(([id, t]) => [
@@ -33,9 +36,10 @@ const html = `<!doctype html>
 </style></head><body><main>
 <h1 id="title">ui-picker</h1><p class="sub" id="sub"></p><div id="qs"></div></main>
 <div class="hint" id="hint"></div>
+<script src="preview-frames-a.js"></script><script src="preview-frames-b.js"></script>
 <script>
 const SLOTS = ${SLOTS};
-const FRAMES = ${JSON.stringify(PNG_UNIQUE)};
+const FRAMES = [...window.UIP_FRAMES_A, ...window.UIP_FRAMES_B];
 const INDEX = ${JSON.stringify(PNG_INDEX)};
 const TERMS = ${JSON.stringify(terms)};
 const S = {
@@ -80,11 +84,20 @@ draw(); setInterval(draw, 100);
 addEventListener('hashchange', () => location.reload());
 </script></body></html>
 `
+const half = Math.ceil(PNG_UNIQUE.length / 2)
+const frameFiles: [string, string][] = [
+  [DIR + FRAME_FILES[0], 'window.UIP_FRAMES_A=' + JSON.stringify(PNG_UNIQUE.slice(0, half)) + '\n'],
+  [DIR + FRAME_FILES[1], 'window.UIP_FRAMES_B=' + JSON.stringify(PNG_UNIQUE.slice(half)) + '\n'],
+]
+const outputs: [string, string][] = [[OUT, html], ...frameFiles]
+for (const [f, m] of outputs) if (m.length > 256 * 1024) { console.error(f + ': ' + m.length + ' B > 256 KiB'); process.exit(1) }
 if (process.argv.includes('--check')) {
-  const cur = (() => { try { return readFileSync(OUT, 'utf8') } catch { return '' } })()
-  if (cur !== html) { console.error('preview.html is stale: run bun scripts/build-preview-html.ts'); process.exit(1) }
-  console.log('preview.html is up to date')
+  for (const [f, m] of outputs) {
+    const cur = (() => { try { return readFileSync(f, 'utf8') } catch { return '' } })()
+    if (cur !== m) { console.error(f + ' is stale: run bun scripts/build-preview-html.ts'); process.exit(1) }
+  }
+  console.log('preview.html and its frame scripts are up to date')
 } else {
-  writeFileSync(OUT, html)
-  console.log(`wrote ${OUT} (${Math.round(html.length / 1024)} KB)`)
+  for (const [f, m] of outputs) writeFileSync(f, m)
+  console.log('wrote ' + outputs.map(([f, m]) => `${f.slice(DIR.length)} (${Math.round(m.length / 1024)} KB)`).join(', '))
 }
