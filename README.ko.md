@@ -10,6 +10,8 @@ Claude Code 2.1.303 이상, 터미널. MIT. 질문한 언어로 답한다: 한�
 
 ![패널이 질문 하나를 묻는 모습: 후보들이 나란히 움직이고 숫자로 고른다](docs/demo.gif)
 
+[18초 데모 영상](https://github.com/rudxognss/ui-picker/releases/download/v0.2.0/ui-picker-demo.mp4): 요청, 패널, 선택, 빌드.
+
 ## 왜
 
 - "메뉴 부분은 멋지게"라고 하면 모델은 아무거나 고른다. ui-picker는 카드 레이아웃·벤토 그리드·탭·캐러셀을 나란히 움직여 보여주고 숫자 키 하나로 고르게 한다.

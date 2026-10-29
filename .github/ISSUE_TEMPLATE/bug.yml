@@ -1,0 +1,32 @@
+name: Something did not work
+description: The pane did not open, a pick did not register, a build ignored the plan, or anything else that looks wrong.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Claude Code version
+      description: Output of `claude --version`
+      placeholder: 2.1.312
+    validations:
+      required: true
+  - type: input
+    id: terminal
+    attributes:
+      label: Terminal and width
+      description: App name and the column count (`tput cols`). The pane opens on its own only at 144 columns or wider; below that the previews open in the browser.
+      placeholder: Ghostty, 132 columns
+    validations:
+      required: true
+  - type: input
+    id: surface
+    attributes:
+      label: How Claude Code was started
+      placeholder: terminal CLI / Desktop app / VS Code / claude -p
+  - type: textarea
+    id: what
+    attributes:
+      label: What you asked and what happened
+      description: The prompt you typed, what the pane or chat showed, and what you expected. Paste the `ui_pick` call from the transcript if it is visible.
+    validations:
+      required: true

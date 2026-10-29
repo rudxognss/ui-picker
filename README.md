@@ -1,5 +1,7 @@
 # ui-picker
 
+[![Release](https://img.shields.io/github/v/release/rudxognss/ui-picker?label=release)](https://github.com/rudxognss/ui-picker/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Claude Code 2.1.303+](https://img.shields.io/badge/Claude%20Code-2.1.303%2B-8b8cf8)](https://code.claude.com)
+
 **Claude Code asks which UI pattern you mean before it builds.** Every area of your request gets one of 25 UI terms; where two or more patterns fit, you see them animating side by side and press one key; numbers are editable; the model builds from the plan you approved.
 
 ```
@@ -9,6 +11,8 @@
 Requires Claude Code 2.1.303 or later in a terminal. MIT. Works in any language: ask in Korean, the pane is Korean. [한국어 안내](README.ko.md)
 
 ![The pane asking one question: candidates animate side by side, a digit picks](docs/demo.gif)
+
+[Watch the 18-second demo](https://github.com/rudxognss/ui-picker/releases/download/v0.2.0/ui-picker-demo.mp4): prompt, pane, pick, build.
 
 ## Why
 
